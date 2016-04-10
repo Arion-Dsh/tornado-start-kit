@@ -21,7 +21,7 @@ db_name = config.DB_NAME
 db = connect(db_name)
 
 define("port", default=8000, help="run on the given port", type=int)
-define("log_file_prefix", default='/opt/logs/torbado/my_server.log')
+define("log_file_prefix", default='/opt/logs/tornado/my_server.log')
 
 
 class Application (tornado.web.Application):
