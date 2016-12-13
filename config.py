@@ -9,11 +9,10 @@ REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 
 
-
-SECRET = 'Arion&kelly' # 'anything you think SECRET. use to cookies secret'
+SECRET = 'Arion&kelly'  # 'anything you think SECRET. use to cookies secret'
 TOKEN_MAX_DAY = 31
 
 try:
-    import locale_config
+    from .locale_config import *
 except:
     pass

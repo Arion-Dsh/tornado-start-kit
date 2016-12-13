@@ -20,10 +20,10 @@ class BaseQuerySet(QuerySet):
         if page < 1:
             page = 1
         items = self.limit(per_page).skip((page-1)*per_page).all()
-        if page == 1 and len(items) < per_page:
-            total = len(items)
-        else:
-            total = self.count()
+        # if page == 1 and len(items) < per_page:
+        #     total = len(items)
+        # else:
+        #     total = self.count()
         return Paginate(self, page, per_page, items)
 
 

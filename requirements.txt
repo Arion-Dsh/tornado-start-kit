@@ -1,5 +1,5 @@
 tornado
 mongoengine
 redis
-Fabric3-1.10.2.post3
+fabric3
 fabtools
