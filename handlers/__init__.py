@@ -1,9 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import logging
-
-from tornado.web import RequestHandler, create_signed_value, decode_signed_value
+from tornado.web import RequestHandler
 
 from plus.token import RestfulToken
 
@@ -28,10 +26,14 @@ class RestfulBaseHander (RequestHandler):
         if self.settings['allow_remote_access'] or self.settings['debug']:
             self._access_control_allow()
 
+    @property
+    def token(self):
+        return RestfulToken(self.settings)
+
     def get_current_user(self):
         token = self.request.headers['Token'] or self.request.headers['Authorization']
         if token:
-            uid = RestfulToken.validate_token(token)
+            uid = self.token.validate(token)
             return uid
 
     def user_passwd_encode(self, passwd):

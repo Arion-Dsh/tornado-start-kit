@@ -3,7 +3,7 @@
 
 import tornado.web
 from tornado import gen
-from tornado.web import HTTPError, RequestHandler
+from tornado.web import HTTPError
 
 from handlers import RestfulBaseHander
 from models.user import User
@@ -36,5 +36,5 @@ class UserSignUpHandler(RestfulBaseHander):
             passwd=passwd
         )
         user.save()
-        token = RestfulToken.create_token(user.id)
+        token = self.token.create(user.id)
         self.finish(dict(token=token))
