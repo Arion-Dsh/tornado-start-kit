@@ -19,7 +19,7 @@ class BaseQuerySet(QuerySet):
         per_page = int(per_page)
         if page < 1:
             page = 1
-        items = self.limit(per_page).skip((page-1)*per_page).all()
+        items = self.limit(per_page).skip((page - 1) * per_page).all()
         # if page == 1 and len(items) < per_page:
         #     total = len(items)
         # else:
@@ -49,7 +49,7 @@ class Paginate(object):
         return int(math.ceil(self.total / float(self.per_page)))
 
     def prev(self):
-        return self.query.paginate(self.page-1, self.per_page)
+        return self.query.paginate(self.page - 1, self.per_page)
 
     @property
     def prev_num(self):
@@ -62,7 +62,7 @@ class Paginate(object):
         return self.page > 1
 
     def next(self):
-        return self.query.paginate(self.page+1, self.per_page)
+        return self.query.paginate(self.page + 1, self.per_page)
 
     @property
     def has_next(self):

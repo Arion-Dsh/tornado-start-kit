@@ -18,7 +18,7 @@ class UserSignUpHandler(RestfulBaseHander):
         user = User.objects.exclude('passwd').all().to_json()
         self.write(user)
 
-    @tornado.web.asynchronous
+    #@tornado.web.asynchronous
     # @gen.coroutine
     def post(self):
         user_name = self.get_body_argument('user_name', '')

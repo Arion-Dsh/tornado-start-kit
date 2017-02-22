@@ -5,6 +5,8 @@ from tornado.web import RequestHandler
 
 from plus.token import RestfulToken
 
+from plus.signed import AESCipher
+
 
 class BaseHander (RequestHandler):
     """ this is ordinary viwes basehandler.
@@ -28,24 +30,34 @@ class RestfulBaseHander (RequestHandler):
 
     @property
     def token(self):
-        return RestfulToken(self.settings)
+        settings = dict(
+            secret=self.settings.get('secret'),
+            redis=self.application.redis
+        )
+        return RestfulToken(settings)
 
     def get_current_user(self):
-        token = self.request.headers['Token'] or self.request.headers['Authorization']
+        token = self.request.headers['Authorization']
         if token:
             uid = self.token.validate(token)
             return uid
 
     def user_passwd_encode(self, passwd):
-        return self.create_signed_value(name='passwd', value=passwd)
+        return self.signed.encrypt(passwd)
 
     def user_passwd_decode(self, passwd):
-        return self.get_secure_cookie(name='passwd', value=passwd)
+
+        return self.signed.decrypt(passwd)
+
+    @property
+    def signed(self):
+        aes = AESCipher(self.settings.get('secret', 'secret'))
+        return aes
 
     def _access_control_allow(self):
         # 是否跨越
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
         self.set_header("Access-Control-Allow-Headers", "Content-Type, Depth, User-Agent, X-File-Size, "
                                                         "X-Requested-With, X-Requested-By, If-Modified-Since, "
-                                                        "X-File-Name, Cache-Control, Token")
+                                                        "X-File-Name, Cache-Control, Authorization")
         self.set_header('Access-Control-Allow-Origin', '*')
