@@ -23,13 +23,14 @@ class RestfulBaseHander (RequestHandler):
 
     def prepare(self):
         self.set_header('Content-Type', 'text/json')
-
+        self.set_header("Access-Control-Allow-Headers", "X-File-Name, Cache-Control, Authorization")
         # 跨域
         if self.settings['allow_remote_access'] or self.settings['debug']:
             self._access_control_allow()
 
     @property
     def token(self):
+        # soooooo ugly
         settings = dict(
             secret=self.settings.get('secret'),
             redis=self.application.redis
@@ -61,3 +62,10 @@ class RestfulBaseHander (RequestHandler):
                                                         "X-Requested-With, X-Requested-By, If-Modified-Since, "
                                                         "X-File-Name, Cache-Control, Authorization")
         self.set_header('Access-Control-Allow-Origin', '*')
+
+
+class TestHandler(RequestHandler):
+
+    async def get(self):
+
+        self.finish("1")

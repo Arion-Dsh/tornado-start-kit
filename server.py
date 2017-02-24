@@ -9,9 +9,6 @@ import tornado.httpserver
 from tornado.web import url
 from tornado.options import define, options
 
-from handlers.user import UserSignUpHandler
-
-
 define("port", default=8000, help="run on the given port", type=int)
 define("secret", default="secret", help="the secret to signed anything")
 define("debug", default=False, help="the debug is off on default", type=bool)
@@ -24,7 +21,7 @@ define("redis_port", default=6397, type=int)
 class Application (tornado.web.Application):
 
     handlers = [
-        url(r'/user/sign_up', UserSignUpHandler, name="sign_up"),
+        url()
     ]
     settings = dict(
         template_path=os.path.join(os.path.dirname(__file__), 'templates'),
@@ -35,19 +32,15 @@ class Application (tornado.web.Application):
         gzip=True,
     )
 
-    redis = redislib.Redis(
-        connection_pool=redislib.ConnectionPool(
-            host=options.redis_host,
-            port=options.redis_port,
-            db=0
-        )
-    )
-
     def __init__(self):
-        handlers = self.handlers
-        settings = self.settings
-
-        super(Application, self).__init__(handlers, **settings)
+        super(Application, self).__init__(self.handlers, **self.settings)
+        self.redis = redislib.Redis(
+            connection_pool=redislib.ConnectionPool(
+                host=options.redis_host,
+                port=options.redis_port,
+                db=0
+            )
+        )
 
 
 def main():

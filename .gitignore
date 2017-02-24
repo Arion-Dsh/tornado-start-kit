@@ -33,6 +33,7 @@ nosetests.xml
 .project
 .pydevproject
 __pycache__
-local_settings.py
 .DS_Store
 *.rdb
+settings.conf
+*.log
