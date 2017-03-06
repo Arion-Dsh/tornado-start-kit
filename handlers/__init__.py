@@ -2,13 +2,11 @@
 # -*- coding:utf-8 -*-
 
 from tornado.web import RequestHandler
-
 from plus.token import RestfulToken
-
 from plus.signed import AESCipher
 
 
-class BaseHander (RequestHandler):
+class BaseHandler (RequestHandler):
     """ this is ordinary viwes basehandler.
     """
 
@@ -19,14 +17,14 @@ class BaseHander (RequestHandler):
         return self.get_secure_cookie('login_user')
 
 
-class RestfulBaseHander (RequestHandler):
+class RestfulBaseHandtler (RequestHandler):
 
     def prepare(self):
         self.set_header('Content-Type', 'text/json')
         self.set_header("Access-Control-Allow-Headers", "X-File-Name, Cache-Control, Authorization")
         # 跨域
         if self.settings['allow_remote_access'] or self.settings['debug']:
-            self._access_control_allow()
+            self.__access_control_allow()
 
     @property
     def token(self):
@@ -55,17 +53,10 @@ class RestfulBaseHander (RequestHandler):
         aes = AESCipher(self.settings.get('secret', 'secret'))
         return aes
 
-    def _access_control_allow(self):
+    def __access_control_allow(self):
         # 是否跨越
         self.set_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
         self.set_header("Access-Control-Allow-Headers", "Content-Type, Depth, User-Agent, X-File-Size, "
                                                         "X-Requested-With, X-Requested-By, If-Modified-Since, "
                                                         "X-File-Name, Cache-Control, Authorization")
         self.set_header('Access-Control-Allow-Origin', '*')
-
-
-class TestHandler(RequestHandler):
-
-    async def get(self):
-
-        self.finish("1")

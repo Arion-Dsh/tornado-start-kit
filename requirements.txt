@@ -1,5 +1,2 @@
-tornado
-mongoengine
-redis
-fabric3
-fabtools
+SQLAlchemy==1.1.5
+tornado==4.4.2
