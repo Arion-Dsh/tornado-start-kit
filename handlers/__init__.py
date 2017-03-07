@@ -22,7 +22,7 @@ class BaseHandler (RequestHandler, BHandlerMixin):
         return self.get_secure_cookie('login_user')
 
 
-class RestfulBaseHandtler (RequestHandler, BHandlerMixin, RESTfulTokenMixin):
+class RESTfulBaseHandler (RequestHandler, BHandlerMixin, RESTfulTokenMixin):
 
     def prepare(self):
         self.set_header('Content-Type', 'text/json')
