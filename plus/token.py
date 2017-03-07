@@ -4,16 +4,13 @@
 import datetime
 import python_jwt as jwt
 
-from tornado.web import RequestHandler
 
-
-class RESTfulTokenMixin(RequestHandler):
-    """ the RESTfulTokenMixin
+class RESTfulTokenMixin(object):
+    """ the RESTfulTokenMixin must use with `tornado.web.RequestHandler`
     """
 
-    def jwt(self, payload):
-        """ this medthod create a token at redis
-        key named 'web_token:<uid>'
+    def get_jwt(self, payload):
+        """ this medthod create a token with python_jwt
         """
         assert isinstance(payload, dict)
         assert('id' in payload)
@@ -38,9 +35,10 @@ class RESTfulTokenMixin(RequestHandler):
 
         return claims
 
-    def delete(self, token):
+    def del_jwt(self, token):
         """ delete token
         """
+        self.require_setting("jwt_secret", "crypto jwt")
         token = token.split(".")
         self.redis.set("jwt_blacked:%s" % token[-1], 1)
         self.redis.expire("jwt_blacked:%s" % token[-1], 86400 * self.settings["max_age_days"])

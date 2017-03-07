@@ -2,22 +2,27 @@
 # -*- coding:utf-8 -*-
 
 from tornado.web import RequestHandler
-from plus.token import RestfulToken
+from plus.token import RESTfulTokenMixin
 from plus.signed import AESCipher
 
 
-class BaseHandler (RequestHandler):
+class BHandlerMixin(RequestHandler):
+
+    @property
+    def redis(self):
+        return self.application.redis
+
+
+class BaseHandler (RequestHandler, BHandlerMixin):
     """ this is ordinary viwes basehandler.
     """
 
     def get_current_user(self):
 
-        # token = RestfulToken.get_token()
-
         return self.get_secure_cookie('login_user')
 
 
-class RestfulBaseHandtler (RequestHandler):
+class RestfulBaseHandtler (RequestHandler, BHandlerMixin, RESTfulTokenMixin):
 
     def prepare(self):
         self.set_header('Content-Type', 'text/json')
@@ -26,20 +31,11 @@ class RestfulBaseHandtler (RequestHandler):
         if self.settings['allow_remote_access'] or self.settings['debug']:
             self.__access_control_allow()
 
-    @property
-    def token(self):
-        # soooooo ugly
-        settings = dict(
-            secret=self.settings.get('secret'),
-            redis=self.application.redis
-        )
-        return RestfulToken(settings)
-
     def get_current_user(self):
         token = self.request.headers['Authorization']
         if token:
-            uid = self.token.validate(token)
-            return uid
+            user = self.verify_jwt(token)
+            return user
 
     def user_passwd_encode(self, passwd):
         return self.signed.encrypt(passwd)
