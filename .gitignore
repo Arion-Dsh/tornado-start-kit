@@ -35,5 +35,5 @@ nosetests.xml
 __pycache__
 .DS_Store
 *.rdb
-settings.conf
 *.log
+settings.conf
