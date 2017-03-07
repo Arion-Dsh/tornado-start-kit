@@ -1,61 +1,46 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-import functools
+import datetime
+import python_jwt as jwt
 
-from tornado.web import HTTPError, create_signed_value, decode_signed_value
+from tornado.web import RequestHandler
 
 
-class RestfulToken(object):
-    """ the RestfulToken
+class RESTfulTokenMixin(RequestHandler):
+    """ the RESTfulTokenMixin
     """
 
-    def __init__(self, settings=dict()):
-        self.redis = settings.get('redis')
-        self.secret = settings.get('secret', 'secret')
-        self.max_age_days = settings.get('max_age_days', 3)
-
-    def create(self, uid):
+    def jwt(self, payload):
         """ this medthod create a token at redis
         key named 'web_token:<uid>'
         """
-        if not uid:
-            raise HTTPError(403)
-        token = create_signed_value(secret=self.secret, name='token', value=uid,
-                                    max_age_days=self.max_age_days)
-        token = str(token)
-        self.redis.set('web_token:%s' % uid, token).expire('web_token:%s' % uid, self.max_age_days * 86400)
-        # redi.set('token:' + uid, config['TOKEN_MAX_DAY'] * 86400)
-        return token
+        assert isinstance(payload, dict)
+        assert('id' in payload)
 
-    def validate(self, token):
-        """ verification token, if pass return uid
+        self.require_setting("jwt_secret", "crypto jwt")
+        expire_days = self.settings.get("max_age_days", 1)
+        return jwt.generate_jwt(payload, self.settings['jwt_secret'],
+                                datetime.timedelta(days=expire_days))
+
+    def verify_jwt(self, token):
+        """ verification token, if pass return claims
         """
-        token = decode_signed_value(secret=self.secret, name='token', value=token,
-                                    max_age_days=self.max_age_days)
-        token = str(token)
-        if token:
-            active_token = self.redis.get('web_token:%s' % token)
-            if active_token is None or token != active_token:
-                return
+        try:
+            _, claims = jwt.verify_jwt(token, self.settings['jwt_secret'], "HS256")
+        except:
+            return
 
-        return token
+        is_blacked = self.redis.get("jwt_blacked:%s" % claims["id"])
 
-    def delete(self, uid):
+        if is_blacked:
+            return
+
+        return claims
+
+    def delete(self, token):
         """ delete token
         """
-        self.redis.remove('web_token:' + uid)
-
-
-def restful_authenticated(method):
-    """ this is restful aurthenticated
-    must with <tornado.web.RequestHandler.authenticated>
-
-    If you token verification failed it will raise 403 http error
-    """
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        if not self.current_user:
-            raise HTTPError(403)
-        return method(self, *args, **kwargs)
-    return wrapper
+        token = token.split(".")
+        self.redis.set("jwt_blacked:%s" % token[-1], 1)
+        self.redis.expire("jwt_blacked:%s" % token[-1], 86400 * self.settings["max_age_days"])
