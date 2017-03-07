@@ -33,8 +33,8 @@ class RESTfulBaseHandler (RequestHandler, BHandlerMixin, RESTfulTokenMixin):
 
     def get_current_user(self):
         token = self.request.headers['Authorization']
-        if token:
-            user = self.verify_jwt(token)
+        if token and token.startswith("Bearer "):
+            user = self.verify_jwt(token[7:0])
             return user
 
     def user_passwd_encode(self, passwd):
