@@ -1,0 +1,7 @@
+debug=True
+allow_remote_access=True
+smtp_server=
+smtp_server_port=
+smtp_from_mail_addr=
+smtp_from_mail_passwd=
+smtp_to_mail_addr=

@@ -1,16 +1,29 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import logging
 from tornado.web import RequestHandler
 from plus.token import RESTfulTokenMixin
 from plus.signed import AESCipher
 
 
-class BHandlerMixin(RequestHandler):
+class BHandlerMixin(object):
+
+    @property
+    def app_options(self):
+        """ Application 配置！
+        区别与 request 的options 方法
+
+        """
+        return self.application.options
 
     @property
     def redis(self):
         return self.application.redis
+
+    @property
+    def log(self):
+        return logging.getLogger()
 
 
 class BaseHandler (RequestHandler, BHandlerMixin):
@@ -32,10 +45,18 @@ class RESTfulBaseHandler (RequestHandler, BHandlerMixin, RESTfulTokenMixin):
             self.__access_control_allow()
 
     def get_current_user(self):
-        token = self.request.headers['Authorization']
+
+        token = self.request.headers.get('Authorization')
+
+        # has no token and debug is on or remote_ip in white list
+        if not token and (self.settings['debug'] or self.request.remote_ip in self.settings['super_white_list']):
+            return True
+
         if token and token.startswith("Bearer "):
-            user = self.verify_jwt(token[7:0])
-            return user
+            user = self.verify_jwt(token[7:])
+            if user:
+                self.token = token[7:]
+                return user
 
     def user_passwd_encode(self, passwd):
         return self.signed.encrypt(passwd)

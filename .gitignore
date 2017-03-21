@@ -37,3 +37,5 @@ __pycache__
 *.rdb
 settings.conf
 *.log
+
+_build
