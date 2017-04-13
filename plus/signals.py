@@ -1,10 +1,9 @@
-
-#!/usr/bin/env python
-#coding=utf-8
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
 """
     signals.py
     ~~~~~~~~~~~~~
-    
+
     Implements signals based on blinker if available, otherwise
     falls silently back to a noop
 
@@ -45,4 +44,3 @@ except ImportError:
 # _signals = Namespace()
 
 # comment_saved = _signals.signal('comment-saved')
-

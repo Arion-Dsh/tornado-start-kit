@@ -1,0 +1,73 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>admin</title>
+		<link rel="stylesheet" href="{{static_url('pure-min.css')}}">
+		<link rel="stylesheet" href="{{static_url('admin/main.css')}}">
+		<link rel="stylesheet" href="{{static_url('font-awesome/css/font-awesome.min.css')}}">
+</head>
+<body>
+	<div id="header" class="bs-s">
+		<div class="wrapper pure-g">
+        <div class="pure-u-1-5">
+          <h1>admin</h1>
+        </div>
+        <div class="pure-u-4-5">
+          <div class="pure-menu pure-menu-horizontal top-bar">
+            <span>welcome</span>
+              <ul class="pure-menu-list">
+                  <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                      <a href="#" class="pure-menu-link">Arion</a>
+                      <ul class="pure-menu-children">
+                          <li class="pure-menu-item">
+                            <a href="#" class="pure-menu-link">
+                              <i class="fa fa-user-circle-o" aria-hidden="true"></i>profile
+                            </a>
+                          </li>
+                      </ul>
+                  </li>
+                  <li class="pure-menu-item">
+                    <a href="#" class="pure-menu-link">
+                      <i class="fa fa-sign-out" aria-hidden="true"></i>log out
+                    </a>
+                  </li>
+              </ul>
+          </div>
+        </div>
+		</div>
+	</div>
+  <!-- main-body -->
+  <div id="main-body">
+    <div class="wrapper pure-g">
+        <div class="pure-u-1-5">
+					{%block name="aside"%}
+					{%end%}
+        </div>
+        <div class="pure-u-4-5">
+          <div class="mgl-30 mgt-30 content">
+						{% set messages = handler.get_flashed_messages() %}
+						{% if messages %}
+						<div id="flashed">
+							 {% for category, msg in messages %}
+							<span class="flash-{{ category }}">{{ msg }}</span>
+							{% end %}
+						</div>
+						{% end %}
+
+						{% block name="content" %} {%end%}
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    <div class="wrapper">
+      <div class="copyright">
+        copyright xxxx
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

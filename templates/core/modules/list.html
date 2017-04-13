@@ -1,0 +1,48 @@
+{% from datetime import datetime%}
+{% block name="aside"%}
+
+	{%if len(models) > 0 %}
+		{% if fields%}
+			{% set  _fields = fields%}
+		{%else%}
+			{% set _fields = models[0]._fields_ordered%}
+		{%end %}	
+		<table class="pure-table pure-table-horizontal items">
+				<thead>
+						<tr>
+								<th>
+								<input type="checkbox">
+								</th>
+								{% for f in _fields%}
+								<th>
+									{{_(f)}}
+								</th>
+								{% end %}
+								<th><i class="fa fa-cog" aria-hidden="true"></i> </th>
+						</tr>
+				</thead>
+
+				<tbody>
+					{% for model in models %}
+						<tr>
+							<td>
+								<input type="checkbox" name="_id" value="{{model.id}}">
+							</td>
+							{% for f in _fields %}
+							<td>
+									{% if isinstance(getattr(model, f), datetime) %}
+										{{getattr(model, f).strftime("%Y-%m-%d %H:%M:%S")}}
+									{% else %}
+										{{getattr(model, f)}}
+									{%end%}
+								</td>
+							{% end %}
+							<td>
+								<a href="{{reverse_url(model_name+"_edit", model.id)}}">{{_("more edit")}}</a>
+							</td>
+						</tr>
+					{% end %}
+				</tbody>
+		</table>
+	{%end%}
+{%end%}

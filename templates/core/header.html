@@ -1,0 +1,21 @@
+<div class ="pure-g" id="header">
+  <div class="wrapper">
+    <div class="pure-u-1-2">
+      <div class="logo">{{_("admin")}}</div>
+    </div>
+    <div class="pure-u-1-2">
+        <div class="pure-menu pure-menu-horizontal">
+            {%if current_user %}
+            <a class="pure-menu-heading">{{current_user}}</a>
+            {% end %}
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item">
+                    {% if current_user %}
+                    <a href="{{reverse_url("logout")}}" class="pure-menu-link">{{_("logout")}}</a>
+                    {% end %}
+                </li>
+            </ul>
+        </div>
+    </div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+{% extends base.html%}
+
+{% block name="main_body"%}
+	{% raw dir(model)%}
+	{%for f in model._fields %}
+	{{f}}
+	{%end%}
+{%end%}
+

@@ -11,13 +11,20 @@ import tornado.httpserver
 from tornado.web import url
 from tornado.options import define, options
 
-from plus.log import SMTPHandler
+from mongoengine import connect
+
+from core.log import SMTPHandler
+
+import uimodules
 
 # handlers
 from handlers.token import TokenHandler
 
-# version
 
+#
+from core.admin import sites
+
+# version
 version = 1.0
 
 # begin
@@ -27,6 +34,11 @@ define("cookie_secret", default="secret", help="the secret to signed anything", 
 define("max_age_days", default=3, type=int, help="max cookie expire day")
 define("debug", default=False, help="the debug is off on default", type=bool)
 define("allow_remote_access", default=False, help="allow_remote_access")
+
+define("mongo_dbname", "tornado_start", str, "the mongodb db's name")
+define("mongo_host", "localhost", str, "the mongodb host")
+define("mongo_port", str, "the mongodb db's port")
+
 
 define("redis_host", default="127.0.0.1", type=str)
 define("redis_port", default=6379, type=int)
@@ -41,18 +53,24 @@ define("super_user", default="admin", type=str, help="the super user for get tok
 define("super_passwd", default="passwd", type=str, help="the pass word for super user")
 define("super_white_list", default=[], type=list, help="the white ip address list for request")
 
+
 # application
-
-
 class Application (tornado.web.Application):
 
     def __init__(self, options):
 
+        # connect db, just put there bcz must connect mongodb before admin register
+        connect(options.mongo_dbname)
+
         self.options = options
 
         self.handlers = [
-            url("/token", TokenHandler)
+            url("/token", TokenHandler),
+
         ]
+
+        self.handlers += sites.urls()
+
         self.settings = dict(
             debug=options.debug,
 
@@ -60,11 +78,14 @@ class Application (tornado.web.Application):
             static_path=os.path.join(os.path.dirname(__file__), 'static'),
 
             login_url="/token",
+            admin_login_url="/admin/login",
             cookie_secret=options.cookie_secret,
             max_age_days=options.max_age_days,
             allow_remote_access=options.allow_remote_access,
             super_white_list=options.super_white_list,
             gzip=True,
+
+            ui_modules=uimodules,
         )
 
         self.redis = redislib.Redis(

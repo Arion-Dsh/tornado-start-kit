@@ -4,7 +4,7 @@ import base64
 from tornado.web import authenticated
 from tornado.gen import coroutine
 
-from handlers import RESTfulBaseHandler
+from core.handler import RESTfulBaseHandler
 
 
 class TokenHandler(RESTfulBaseHandler):

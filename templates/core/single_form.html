@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block name="aside"%}
+	{% module AdminMenu(handler.get_name())%}
+{%end%}
+{% block name="content" %}
+<form method="POST" class="pure-form pure-form-aligned">
+<fieldset>
+	<legend>{{handler.get_name()}}</legend>
+	{% for f in form%}
+	<div class="pure-control-group">
+					<label for="{{f.label.field_id}}">{{f.label.text}} {% if f.flags.required %}*{% end %}</label>
+					{% if  f.type == "TagsField"%}
+						{% raw f(type="tags") %}
+					{%else%}
+						{% raw f %}
+					{% end%}
+					<span class="pure-form-message-inline">
+						{%for err in f.errors%}
+							{{err}}
+						{%end%}
+					</span>
+			</div>
+	{% end %}
+	<div class="pure-controls">
+		<button type="submit" class="pure-button pure-button-primary"> {{_("Submit")}}</button>
+	</div>
+</fieldset>
+</form>
+<link rel="stylesheet" href="{{static_url('lib/tags-input/tags-input.css')}}" type="text/css" media="screen" charset="utf-8">
+<script type="text/javascript" charset=utf-8" src="{{static_url('lib/tags-input/tags-input.js')}}"> </script>
+<script type="text/javascript">
+	let $ = s => [].slice.call(document.querySelectorAll(s));
+	$('input[type="tags"]').forEach(tagsInput);
+</script>
+
+{% end %}
