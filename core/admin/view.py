@@ -20,13 +20,15 @@ class AdminView(object):
 
     __alias__ = None
 
-    list_exclude = []  # show in list page
+    list_only = []  # show in list page
 
-    only = []
+    page_exclude = []  # read create edit delete
+
     exclude = []
+    only = []
 
     form_only = None
-    form_eclude = None
+    form_exclude = None
     form_args = None
 
     menu = dict(

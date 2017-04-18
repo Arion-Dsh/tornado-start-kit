@@ -1,48 +1,36 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mongoengine import StringField, IntField
+from datetime import datetime
+from mongoengine import StringField, ListField, DateTimeField, ReferenceField
+
 
 from plus.mongoengine import Document
 
 
-class AdminMenuModel(Document):
+class PermissionModel(Document):
 
-    name = StringField(required=True, unique=True)
+    name = StringField(unique=True, required=True, max_length=50)
     alias = StringField(max_length=50)
-    index = IntField()
-    parent_name = StringField(max_length=50)
-    parent_index = IntField()
+
     meta = {
-        'collection': 'admin_menu',
-        'ordering': ['-index'],
+        'collection': 'permission',
+        'ordering': ['-create_time']
     }
 
 
-class AdminModel(object):
+class UserRoleModel(Document):
 
-    """Admin View Model
+    name = StringField(unique=True, max_length=50, required=True)
+    permissions = ListField(StringField(max_length=20, queryset=PermissionModel))
+    pers = ListField(ReferenceField("PermissionModel"))
+    create_time = DateTimeField(default=datetime.now)
+    update_time = DateTimeField(default=datetime.now)
 
-    :attr str __alias__: this will be show in page as main block name  and encode in url
+    meta = {
+        'collection': 'user_role',
+        'ordering': ['-create_time'],
+    }
 
-    :atrr list list_exclude: show those model's attr in list page
-
-     """
-
-    __alias__ = None
-
-    list_exclude = []  # show in list page
-
-    only = []
-    exclude = []
-
-    form_only = None
-    form_eclude = None
-    form_args = None
-
-    menu = dict(
-        alias=None,
-        index=0,
-        parent_name="Other",
-        parent_index=0,
-    )
+    def clean(self):
+        self.update_time = datetime.now()

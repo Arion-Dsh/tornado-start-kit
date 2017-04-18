@@ -1,58 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import bson
 from tornado.web import url, RedirectHandler
-from plus.mongoengine import Document
-from plus.form import model_form
 
-from core.handler import BaseHandler as BHandler
 from .view import AdminView
 from .model import AdminMenuModel
+from .handler import BaseHandler
 from .auth import authenticated
 
 __all__ = ("Register", "URLS")
-
-
-class BaseHandler(BHandler):
-
-    model = Document
-    admin_model = AdminView
-
-    @classmethod
-    def get_name(cls):
-        if cls.admin_model.__alias__:
-            return cls.admin_model.__alias__
-        return cls.model._class_name.lower()
-
-    @property
-    def form(self):
-        return model_form(self.model,
-                          only=self.admin_model.form_only,
-                          exclude=self.admin_model.form_eclude,
-                          field_args=self.admin_model.form_args,
-                          )
-
-    def db_objects(self, *args, **kwargs):
-        query = self.model.objects(*args, **kwargs)
-        for f in self.admin_model.exclude:
-            query = query.exclude(f)
-
-        for f in self.admin_model.only:
-            query = query.only(f)
-
-        return query
-
-    def get_current_user(self):
-        user = self.get_secure_cookie("admin_user")
-        if not user:
-            return
-        return user
-
-    def validate_permission(self, mod=None):
-        user = self.get_current_user()
-
-        if mod not in user.get("permissions", []):
-            return
-        return True
 
 
 class ListHandler(BaseHandler):
@@ -70,7 +26,7 @@ class ListHandler(BaseHandler):
         return self.render("core/list.html",
                            model=data,
                            name=self.get_name(),
-                           list_exclude=self.admin_model.list_exclude
+                           list_only=self.admin_model.list_only
                            )
 
     @authenticated
@@ -85,7 +41,7 @@ class ListHandler(BaseHandler):
 class SingleFormHandler(BaseHandler):
 
     @authenticated
-    async def get(self, id=None):
+    async def get(self, id=None, form=None):
         if id:
             m = self.db_objects(id=id).first()
         else:
@@ -94,7 +50,7 @@ class SingleFormHandler(BaseHandler):
         if getattr(m, "passwd", None):
             m.passwd = self.passwd_decode(m.passwd)
 
-        f = self.form(self, obj=m)
+        f = form or self.form(self, obj=m)
 
         return self.render("core/single_form.html", model=m, form=f)
 
@@ -112,11 +68,14 @@ class SingleFormHandler(BaseHandler):
         f.populate_obj(m)
         if getattr(m, "passwd", None):
             m.passwd = self.passwd_encode(m.passwd).decode()
+
+        if not m.id:
+            m.id = bson.ObjectId()
         try:
             m.save()
         except Exception as e:
-            print(e)
             self.flash(self.format_mongo_err(str(e)), "error")
+            return self.redirect(self.reverse_url(self.get_name() + "_add"))
         return self.redirect(self.reverse_url(self.get_name() + "_edit", m.id))
 
 

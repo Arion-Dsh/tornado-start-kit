@@ -47,29 +47,35 @@ class ModelConverter(object):
 
         self.converters = converters
 
-    def convert(self, model, field, field_args):
-        kwargs = {
-            'label': getattr(field, 'verbose_name', field.name),
-            'description': getattr(field, 'help_text', None) or '',
-            'validators': getattr(field, 'validators', None) or [],
-            'filters': getattr(field, 'filters', None) or [],
-            'default': field.default,
-            'render_kw': getattr(field, 'render_kw', None) or {},
-        }
-
-        if field_args:
-            kwargs.update(field_args)
-
+    def __update_kwargs(self, field, kwargs):
         if kwargs['validators']:
-            # Create a copy of the list since we will be modifying it.
             kwargs['validators'] = list(kwargs['validators'])
 
         if field.required:
             kwargs['validators'].append(validators.InputRequired())
         else:
             kwargs['validators'].append(validators.Optional())
+        return kwargs
+
+    def convert(self, model, field, field_args):
+        kwargs = {
+            'label': getattr(field, 'verbose_name', field.name),
+            'description': getattr(field, 'help_text', ''),
+            'validators': getattr(field, 'validators', []),
+            'filters': getattr(field, 'filters', []),
+            'default': field.default,
+            'render_kw': getattr(field, 'render_kw', {}),
+        }
+
+        if field_args:
+            kwargs.update(field_args)
+
+        kwargs = self.__update_kwargs(field, kwargs)
 
         ftype = type(field).__name__
+
+        if getattr(field, "queryset", None):
+            return ModelSelectField(model=field.queryset, **kwargs)
 
         if field.choices:
             kwargs['choices'] = field.choices
@@ -169,8 +175,9 @@ class ModelConverter(object):
     def conv_List(self, model, field, kwargs):
         if isinstance(field.field, ReferenceField):
             return ModelSelectMultipleField(model=field.field.document_type, **kwargs)
-
-        if isinstance(field.field, StringField) and not field.field.choices:
+        if getattr(field.field, "queryset", None):
+            return ModelSelectMultipleField(model=field.field.queryset, **kwargs)
+        if isinstance(field.field, StringField) and getattr(field, "queryset", None) and getattr(field.field, "queryset", None):
             return TagsField(**kwargs)
 
         if field.field.choices:

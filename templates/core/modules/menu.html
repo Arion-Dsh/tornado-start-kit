@@ -5,7 +5,8 @@
 		<span class="pure-menu-heading">{{h}}</span>
 		<ul class="pure-menu-list">
 			{% for m in ms%}
-			<li class="pure-menu-item {%if current==m.name %}pure-menu-selected{%end%}"><a href="{{reverse_url(m.name+"_list", 1)}}" class="pure-menu-link">{{m.alias}}</a></li>
+			<li class="pure-menu-item {%if current==m.name %}pure-menu-selected{%end%}">
+				<a href="{{reverse_url(m.name+"_list", 1)}}" class="pure-menu-link">{{_(m.alias)}}</a></li>
 			{%end%}
 		</ul>
 		{%end%}

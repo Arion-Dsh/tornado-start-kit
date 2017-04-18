@@ -18,18 +18,18 @@
             <span>welcome</span>
               <ul class="pure-menu-list">
                   <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-                      <a href="#" class="pure-menu-link">Arion</a>
+										<a href="#" class="pure-menu-link">{{current_user.user_name}}</a>
                       <ul class="pure-menu-children">
                           <li class="pure-menu-item">
-                            <a href="#" class="pure-menu-link">
-                              <i class="fa fa-user-circle-o" aria-hidden="true"></i>profile
+														<a href="{{reverse_url("admin_user_edit", current_user.id)}}" class="pure-menu-link">
+															<i class="fa fa-user-circle-o" aria-hidden="true"></i>{{_("profile")}}
                             </a>
                           </li>
                       </ul>
                   </li>
                   <li class="pure-menu-item">
-                    <a href="#" class="pure-menu-link">
-                      <i class="fa fa-sign-out" aria-hidden="true"></i>log out
+                    <a href="/admin/logout" class="pure-menu-link">
+											<i class="fa fa-sign-out" aria-hidden="true"></i>{{_("logout")}}
                     </a>
                   </li>
               </ul>

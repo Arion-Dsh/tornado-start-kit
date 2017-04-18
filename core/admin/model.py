@@ -34,38 +34,10 @@ class AdminUserModel(Document):
             self.create_time = datetime.now()
 
 
-class AdminPermissionGroupModel(Document):
-
-    name = StringField(unique=True, max_length=50, required=True)
-    permissions = ListField(StringField(max_length=20))
-    # pers = ReferenceField("AdminPermissionModel")
-    create_time = DateTimeField(default=datetime.now)
-    update_time = DateTimeField(default=datetime.now)
-
-    meta = {
-        'collection': 'admin_user_group',
-        'ordering': ['-create_time'],
-    }
-
-    def clean(self):
-        self.update_time = datetime.now()
-
-
-class AdminPermissionModel(Document):
-
-    name = StringField(unique=True, required=True)
-    create_time = DateTimeField(default=datetime.now)
-
-    meta = {
-        'collection': 'admin_permission',
-        'ordering': ['-create_time']
-    }
-
-
 class AdminMenuModel(Document):
 
-    name = StringField(required=True, unique=True)
-    alias = StringField(max_length=50)
+    name = StringField(required=True, unique=True, max_length=50)
+    alias = StringField(required=True, max_length=50)
     index = IntField()
     parent_name = StringField(max_length=50)
     parent_index = IntField()

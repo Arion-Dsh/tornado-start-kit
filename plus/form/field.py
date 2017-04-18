@@ -127,8 +127,10 @@ class ModelSelectField(QuerySetSelectField):
     Like a QuerySetSelectField, except takes a model class instead of a
     queryset and lists everything in it.
     """
+
     def __init__(self, label=u'', validators=None, model=None, **kwargs):
-        queryset = kwargs.pop('queryset', model.objects)
+        queryset = kwargs.pop('queryset', model)
+        queryset = queryset.objects
         super(ModelSelectField, self).__init__(label, validators, queryset=queryset, **kwargs)
 
 
@@ -136,12 +138,15 @@ class ModelSelectMultipleField(QuerySetSelectMultipleField):
     """
     Allows multiple select
     """
+
     def __init__(self, label=u'', validators=None, model=None, **kwargs):
-        queryset = kwargs.pop('queryset', model.objects)
+        queryset = kwargs.pop('queryset', model)
+        queryset = queryset.objects
         super(ModelSelectMultipleField, self).__init__(label, validators, queryset=queryset, **kwargs)
 
 
 class JSONField(TextAreaField):
+
     def _value(self):
         if self.raw_data:
             return self.raw_data[0]
@@ -157,6 +162,7 @@ class JSONField(TextAreaField):
 
 
 class DictField(JSONField):
+
     def process_formdata(self, value):
         super(DictField, self).process_formdata(value)
         if value and not isinstance(self.data, dict):
@@ -167,6 +173,7 @@ class NoneStringField(StringField):
     """
     Custom StringField that counts "" as None
     """
+
     def process_formdata(self, valuelist):
         if valuelist:
             self.data = valuelist[0]
@@ -178,6 +185,7 @@ class BinaryField(TextAreaField):
     """
     Custom TextAreaField that converts its value with binary_type.
     """
+
     def process_formdata(self, valuelist):
         if valuelist:
             if six.PY3:
@@ -201,7 +209,9 @@ class Tag(Field):
         else:
             self.data = []
 
+
 class TagsField(Tag):
+
     def __init__(self, label='', validators=None, remove_duplicates=True, **kwargs):
         super(TagsField, self).__init__(label, validators, **kwargs)
         self.remove_duplicates = remove_duplicates

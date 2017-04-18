@@ -12,7 +12,7 @@ class Form(wtForm):
     `WTForms` wrapper for Tornado.
     """
 
-    def __init__(self, formdata=None, obj=None, prefix='', **kwargs):
+    def __init__(self, formdata=None, obj=None, prefix='', *args, **kwargs):
         """
         Wrap the `formdata` with the `TornadoInputWrapper` and call the base
         constuctor.

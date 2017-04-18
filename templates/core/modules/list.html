@@ -30,10 +30,21 @@
 							</td>
 							{% for f in _fields %}
 							<td>
-									{% if isinstance(getattr(model, f), datetime) %}
-										{{getattr(model, f).strftime("%Y-%m-%d %H:%M:%S")}}
-									{% else %}
-										{{getattr(model, f)}}
+									{% set v = getattr(model, f)%}
+									{% if isinstance(v, datetime) %}
+										{{v.strftime("%Y-%m-%d %H:%M:%S")}}
+									{% elif isinstance(v, bool) %}
+												
+									<i class="fa
+										{%if v%} 
+											fa-check
+										{% else%}
+											fa-close
+										{%end%}
+										"
+												aria-hidden="true"></i>
+										{%else%}
+										{{v}}
 									{%end%}
 								</td>
 							{% end %}

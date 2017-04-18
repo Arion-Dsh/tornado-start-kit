@@ -6,7 +6,7 @@ import tornado.web
 
 from .model import AdminMenuModel
 
-__all__ = ("AdminListPage", "AdminMenu")
+__all__ = ("AdminListPage", "AdminMenu", "AdminPageName")
 
 
 class AdminListPage(tornado.web.UIModule):
@@ -26,3 +26,14 @@ class AdminMenu(tornado.web.UIModule):
             menus.append((k, list(g)))
 
         return self.render_string("core/modules/menu.html", menus=menus, current=current)
+
+
+class AdminPageName(tornado.web.UIModule):
+
+    def render(self, name, type_=None):
+        menu = AdminMenuModel.objects(name=name).first()
+        name = menu.alias
+        if type_:
+            name = "%s: %s" % (name, type_)
+
+        return name
