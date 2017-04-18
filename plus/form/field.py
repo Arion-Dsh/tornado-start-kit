@@ -38,11 +38,12 @@ class QuerySetSelectField(SelectFieldBase):
     widget = widgets.Select()
 
     def __init__(self, label=u'', validators=None, queryset=None,
-                 label_attr='', allow_blank=False, blank_text=u'---',
+                 label_attr='', value_attr='', allow_blank=False, blank_text=u'---',
                  **kwargs):
 
         super(QuerySetSelectField, self).__init__(label, validators, **kwargs)
         self.label_attr = label_attr
+        self.value_attr = value_attr
         self.allow_blank = allow_blank
         self.blank_text = blank_text
         self.queryset = queryset
@@ -57,11 +58,13 @@ class QuerySetSelectField(SelectFieldBase):
         self.queryset.rewind()
         for obj in self.queryset:
             label = self.label_attr and getattr(obj, self.label_attr) or obj
+            value = self.value_attr and getattr(obj, self. value_attr) or obj.id
+            obj = self.value_attr and getattr(obj, self.value_attr) or obj
             if isinstance(self.data, list):
                 selected = obj in self.data
             else:
                 selected = self._is_selected(obj)
-            yield (obj.id, label, selected)
+            yield (value, label, selected)
 
     def process_formdata(self, valuelist):
         if valuelist:
@@ -73,8 +76,14 @@ class QuerySetSelectField(SelectFieldBase):
                     return
 
                 try:
-                    obj = self.queryset.get(pk=valuelist[0])
-                    self.data = obj
+                    if self.value_attr:
+                        k = dict()
+                        k[self.value_attr] = valuelist[0]
+                        obj = self.queryset.get(**k)
+                        self.data = getattr(obj, self.value_attr)
+                    else:
+                        obj = self.queryset.get(pk=valuelist[0])
+                        self.data = obj
                 except DoesNotExist:
                     self.data = None
 
@@ -92,12 +101,13 @@ class QuerySetSelectMultipleField(QuerySetSelectField):
     widget = widgets.Select(multiple=True)
 
     def __init__(self, label=u'', validators=None, queryset=None,
-                 label_attr='', allow_blank=False, blank_text=u'---',
+                 label_attr='', value_attr='', allow_blank=False, blank_text=u'---',
                  **kwargs):
 
         super(QuerySetSelectMultipleField, self).__init__(
-            label, validators, queryset, label_attr, allow_blank, blank_text,
+            label, validators, queryset, label_attr, value_attr, allow_blank, blank_text,
             **kwargs)
+        self.value_attr = value_attr
 
     def process_formdata(self, valuelist):
 
@@ -110,7 +120,13 @@ class QuerySetSelectMultipleField(QuerySetSelectField):
                     return
 
                 self.queryset.rewind()
-                self.data = list(self.queryset(pk__in=valuelist))
+                if self.value_attr:
+                    k = dict()
+                    k["%s__in" % self.value_attr] = valuelist
+                    self.data = [getattr(v, self.value_attr) for v in self.queryset(**k)]
+
+                else:
+                    self.data = list(self.queryset(pk__in=valuelist))
                 if not len(self.data):
                     self.data = None
 
@@ -228,4 +244,5 @@ class TagsField(Tag):
         for item in seq:
             if item.lower() not in d:
                 d[item.lower()] = True
+                yield item
                 yield item

@@ -5,6 +5,7 @@ from mongoengine.fields import DateTimeField, EmailField, StringField, ListField
     BooleanField, IntField, ObjectId
 
 from plus.mongoengine import Document
+from core.model import PermissionModel, UserRoleModel
 
 
 class AdminUserModel(Document):
@@ -16,8 +17,8 @@ class AdminUserModel(Document):
     update_time = DateTimeField(default=datetime.now)
     create_time = DateTimeField(default=datetime.now)
 
-    role = ListField(StringField())
-    permissions = ListField(StringField())
+    role = ListField(StringField(max_length=50, queryset=UserRoleModel))
+    permissions = ListField(StringField(max_length=50, queryset=PermissionModel))
 
     active = BooleanField()
 

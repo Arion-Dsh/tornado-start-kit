@@ -25,16 +25,16 @@ def urls():
     return _urls + URLS()()
 
 
-class PG(AdminView):
+class AdminRole(AdminView):
     __alias__ = "admin_role"
     form_args = {
-        "pers": {"label_attr": "name"},
+        "permissions": {"label_attr": "name", "value_attr": "name"},
         "create_time": {"label": "Create Time", "render_kw": {"readonly": ""}},
         "update_time": {"label": "Update Time", "render_kw": {"readonly": ""}}
     }
 
 
-register(UserRoleModel, PG)
+register(UserRoleModel, AdminRole)
 
 
 class User(AdminView):
@@ -43,6 +43,9 @@ class User(AdminView):
     list_only = ["user_name", "create_time", "active"]
 
     form_args = {
+
+        "role": {"label_attr": "name", "value_attr": "name"},
+        "permissions": {"label_attr": "name", "value_attr": "name"},
         "passwd": {"label": "Password", "render_kw": {"type": "password"}},
         "create_time": {"label": "Create Time", "render_kw": {"readonly": ""}},
         "update_time": {"label": "Update Time", "render_kw": {"readonly": ""}}

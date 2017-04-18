@@ -19,7 +19,6 @@ class BaseQuerySet(QuerySet):
         per_page = int(per_page)
         if page < 1:
             page = 1
-        print(self.count())
         items = self.limit(per_page).skip((page - 1) * per_page).all()
         total = self.count()
         return Paginate(self, page, per_page, items, total)
